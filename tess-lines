@@ -1,0 +1,29 @@
+#!/usr/bin/python
+
+from pylab import *
+import re
+import tess,ocrolib
+
+import argparse
+parser = argparse.ArgumentParser(description="Tesseract line recognizer.")
+parser.add_argument("--show",help="show progress",action="store_true")
+parser.add_argument("files",default=[],nargs='*',help="input lines")
+
+args = parser.parse_args()
+args.files = ocrolib.glob_all(args.files)
+if len(args.files)==0:
+    parser.print_help()
+    sys.exit(0)
+
+api = tess.TessBaseAPI()
+api.Init("/usr/share/tesseract-ocr/","eng")
+api.SetPageSegMode(tess.PSM_SINGLE_LINE)
+
+for fname in args.files:
+    image = imread(fname)
+    if image.ndim==3: image = mean(image,2)
+    bimage = array(image*255,'B')
+    h,w = bimage.shape
+    text = api.TesseractRect(bytearray(bimage),1,w,0,0,w,h)
+    text = re.sub(r'[ \t\r\n]+',' ',text)
+    print fname,text

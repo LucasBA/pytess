@@ -1,0 +1,15 @@
+#!/usr/bin/python
+
+from pylab import *
+import tess
+
+api = tess.TessBaseAPI()
+api.Init("/usr/share/tesseract-ocr/","eng")
+
+image = imread("alice.png")
+image=mean(image,2)
+bimage = array(image*255,'B')
+h,w = bimage.shape
+
+text = api.TesseractRect(bytearray(bimage),1,w,0,0,w,h)
+print text
