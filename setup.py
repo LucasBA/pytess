@@ -27,4 +27,5 @@ setup (name = 'tess',
        description = "Tesseract API bindings",
        ext_modules = [tess],
        py_modules = ["tess"],
+       scripts = ["tess-lines"],
        )

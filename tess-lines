@@ -1,29 +1,35 @@
 #!/usr/bin/python
 
 from pylab import *
-import re
-import tess,ocrolib
+import re,codecs,glob,itertools
+import tess
 
 import argparse
 parser = argparse.ArgumentParser(description="Tesseract line recognizer.")
-parser.add_argument("--show",help="show progress",action="store_true")
+parser.add_argument("-l","--lang",default="eng")
+parser.add_argument("-q","--quiet",action="store_true")
 parser.add_argument("files",default=[],nargs='*',help="input lines")
 
 args = parser.parse_args()
-args.files = ocrolib.glob_all(args.files)
+files = [glob.glob(f) for f in args.files]
+files = [a for b in files for a in b]
 if len(args.files)==0:
     parser.print_help()
     sys.exit(0)
 
 api = tess.TessBaseAPI()
-api.Init("/usr/share/tesseract-ocr/","eng")
+api.Init("/usr/share/tesseract-ocr/",args.lang)
 api.SetPageSegMode(tess.PSM_SINGLE_LINE)
 
 for fname in args.files:
+    base = re.sub(r'\.[^/]*$','',fname)
     image = imread(fname)
     if image.ndim==3: image = mean(image,2)
+    image = image*1.0/amax(image)
     bimage = array(image*255,'B')
     h,w = bimage.shape
-    text = api.TesseractRect(bytearray(bimage),1,w,0,0,w,h)
-    text = re.sub(r'[ \t\r\n]+',' ',text)
-    print fname,text
+    text = api.TesseractRect(bytearray(bimage),1,w,0,0,w,h).decode("utf-8")
+    text = re.sub(ur'\s+(?u)',u' ',unicode(text))
+    if not args.quiet: print u"%s\t%s"%(fname,text)
+    with codecs.open(base+".txt","w","utf-8") as stream:
+        stream.write(text)
