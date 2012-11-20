@@ -21,7 +21,7 @@ api = tess.TessBaseAPI()
 api.Init("/usr/share/tesseract-ocr/",args.lang)
 api.SetPageSegMode(tess.PSM_SINGLE_LINE)
 
-for fname in args.files:
+for fname in files:
     base = re.sub(r'\.[^/]*$','',fname)
     image = imread(fname)
     if image.ndim==3: image = mean(image,2)
