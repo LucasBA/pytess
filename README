@@ -1,0 +1,8 @@
+To install, type
+
+    sudo python setup.py install
+
+You can look at "tess-lines" for a simple example of how to use it.
+More documentation is contained in the SWIG file tess.i
+
+The Python API is a direct binding of the C++ API.
