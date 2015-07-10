@@ -1,0 +1,1 @@
+This is a small project binding Tesseract to Python using swig.  Other projects
